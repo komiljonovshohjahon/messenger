@@ -27,8 +27,8 @@ import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-import '../../../../../util/get.dart';
 import '../../tab/menu/controller.dart';
+import '/util/get.dart';
 import '/api/backend/schema.dart'
     show
         AddUserEmailErrorCode,
@@ -377,6 +377,7 @@ class MyProfileController extends GetxController {
         if (router.profileSection.value != tab) {
           ignoreWorker = true;
           router.profileSection.value = tab;
+          _handleMenuScroll();
           Future.delayed(Duration.zero, () => ignoreWorker = false);
         }
       }
@@ -495,8 +496,6 @@ class MyProfileController extends GetxController {
     );
 
     scrollController.addListener(_ensureNameDisplayed);
-
-    positionsListener.itemPositions.addListener(_handleMenuScroll);
 
     welcome = WelcomeFieldController(
       _chatService,
@@ -923,14 +922,14 @@ class MyProfileController extends GetxController {
 
   /// Handles the menu tab is scrolled to the current visible section.
   void _handleMenuScroll() {
+    //check if only the scrollbar is being dragged
     final index = positionsListener.itemPositions.value.first.index;
-    final tab = ProfileTab.values[index];
     final menuTabController = Get.findOrNull<MenuTabController>();
     if (index == ProfileTab.download.index) {
       return;
     }
     menuTabController?.scrollController.animateTo(
-      tab.index * 73.0,
+      index * 73.0 + (index * 3.0),
       duration: 200.milliseconds,
       curve: Curves.ease,
     );
