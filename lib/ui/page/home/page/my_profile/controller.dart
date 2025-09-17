@@ -27,6 +27,8 @@ import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '../../../../../util/get.dart';
+import '../../tab/menu/controller.dart';
 import '/api/backend/schema.dart'
     show
         AddUserEmailErrorCode,
@@ -494,6 +496,8 @@ class MyProfileController extends GetxController {
 
     scrollController.addListener(_ensureNameDisplayed);
 
+    positionsListener.itemPositions.addListener(_handleMenuScroll);
+
     welcome = WelcomeFieldController(
       _chatService,
       onSubmit: () async {
@@ -915,6 +919,21 @@ class MyProfileController extends GetxController {
   /// [scrollController].
   void _ensureNameDisplayed() {
     displayName.value = scrollController.position.pixels >= 250;
+  }
+
+  /// Handles the menu tab is scrolled to the current visible section.
+  void _handleMenuScroll() {
+    final index = positionsListener.itemPositions.value.first.index;
+    final tab = ProfileTab.values[index];
+    final menuTabController = Get.findOrNull<MenuTabController>();
+    if (index == ProfileTab.download.index) {
+      return;
+    }
+    menuTabController?.scrollController.animateTo(
+      tab.index * 73.0,
+      duration: 200.milliseconds,
+      curve: Curves.ease,
+    );
   }
 }
 
